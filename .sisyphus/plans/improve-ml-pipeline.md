@@ -417,7 +417,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 4. Build 3 Classifier Pipelines and CV Comparison
+- [x] 4. Build 3 Classifier Pipelines and CV Comparison
 
   **What to do**:
   Append the following NEW CELLS to the notebook (after cells from Task 3):

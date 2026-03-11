@@ -222,3 +222,39 @@ recommendations for Task 3 integration strategy.
 
 ### Blockers & Issues
 - Minor spec/data mismatch observed: dataset currently yields 33 genomic feature columns after setting `Patient_ID` as index, not 34. Implemented required logic exactly and preserved expected processing flow.
+
+---
+## Task 4: 3 Classifier Pipelines + CV Comparison
+
+### Pipelines Built
+- **L1 LogReg**: StandardScaler → SelectKBest(k=20, MI) → LogReg(penalty='l1', solver='liblinear', C=0.1, class_weight='balanced')
+- **Linear SVC**: StandardScaler → SelectKBest(k=20, MI) → SVC(kernel='linear', C=0.1, class_weight='balanced', probability=True)
+- **XGBoost**: StandardScaler → SelectKBest(k=20, MI) → XGBClassifier(n_estimators=50, max_depth=3, lr=0.01, scale_pos_weight=3.42)
+
+### Feature Selection
+- **Method**: SelectKBest with mutual_info_classif (deterministic via functools.partial with random_state=42)
+- **k=20 features**: Chosen per N/5 rule (137/5≈27) → conservative k=20
+
+### Class Imbalance Handling
+- **L1 LogReg & Linear SVC**: `class_weight='balanced'` (auto-computed as n_samples / (n_classes * np.bincount(y)))
+- **XGBoost**: `scale_pos_weight=3.42` (106 non-responders / 31 responders)
+- **NO SMOTE/ADASYN** per G7 guardrail (avoids k-neighbor failures in small CV folds)
+
+### Cross-Validation Results
+Deferred by guardrail: notebook execution is explicitly prohibited in Task 4 (`DO NOT execute the notebook cells`).
+
+- **Evaluation setup in appended code**: RepeatedStratifiedKFold (5 splits × 3 repeats = 15 iterations)
+- **Metrics configured**: ROC-AUC (primary), F1-score, Balanced Accuracy
+
+### Guardrail Verification (G1)
+- Notebook total cells after append: 60
+- First 58 cells unchanged vs git HEAD: True
+
+### Technical Notes
+- Used `functools.partial(mutual_info_classif, random_state=42)` for deterministic MI scoring (G13)
+- All pipelines use `random_state=42` for reproducibility
+- XGBoost: `use_label_encoder=False` and `eval_metric='logloss'` to suppress warnings
+- SVC: `max_iter=10000` to ensure convergence
+
+### Blockers & Issues
+- Cannot provide executed CV table or ROC-AUC threshold confirmation in Task 4 because notebook execution is disallowed by task constraints.
