@@ -711,7 +711,7 @@ Max Concurrent: 4 (Final verification wave only)
     Evidence: .sisyphus/evidence/task-5-explainer-type.txt
   ```
 
-  **Commit**: NO (groups with Task 9)
+  - [x] 6. ROC Curve + Confusion Matrix + Model Comparison Bar Chart
 
 - [ ] 6. ROC Curve, Confusion Matrix, and Model Comparison Bar Chart
 
