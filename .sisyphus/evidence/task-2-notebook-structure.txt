@@ -1,0 +1,212 @@
+================================================================================
+TASK 2: NOTEBOOK STRUCTURE ANALYSIS - EVIDENCE
+================================================================================
+Generated: 2026-03-11
+Task: Read 01_Model_Development.ipynb to understand kernel memory state
+
+================================================================================
+1. NOTEBOOK CELL SUMMARY
+================================================================================
+
+Total cells in notebook: 54
+  - Code cells: 26
+  - Markdown cells: 28
+
+Status: Task 1 added 2 cells (cells 52-53), notebook now has 54 cells total
+Last cell index: 53 (0-indexed)
+Next insertion point for appending: Cell index 54
+
+Cell list (last 10 cells):
+  Cell 44: markdown   | - **Oversampling**
+  Cell 45: code       | from imblearn.over_sampling import SMOTE
+  Cell 46: markdown   | # **5. Model Optimization**
+  Cell 47: code       | import warnings, os, joblib
+  Cell 48: code       | # Feature importance from the pipeline's logistic regression
+  Cell 49: markdown   | ---
+  Cell 50: code       | os.makedirs('artifacts', exist_ok=True)
+  Cell 51: markdown   | ---
+  Cell 52: markdown   | ## 6. Improved Model Development (ADDED BY TASK 1)
+  Cell 53: code       | # Verify SHAP and XGBoost installation & versions (ADDED BY TASK 1)
+
+================================================================================
+2. KEY VARIABLES AT KERNEL END
+================================================================================
+
+Variable Name              | Type           | Shape         | Source Cell   | Status
+--------------------------|----------------|---------------|---------------|-----
+X_train_all               | DataFrame      | (137, 38110)  | 33            | ✅ Available
+y_train                   | Series         | (137,)        | 33            | ✅ Available
+RANDOM_STATE              | int            | N/A           | 1             | ✅ 42 (constant)
+cv                        | StratifiedKFold| N/A           | 33            | ✅ 5-fold, 3-repeat
+train_clinical_imputed    | DataFrame      | (137, 10)     | 27            | ✅ Contains Response+encodings
+train_trans_scaled        | DataFrame      | (137, 38030)  | 13            | ✅ Scaled transcriptomics
+train_pathway_scaled      | DataFrame      | (137, 50)     | 16            | ✅ Scaled ssGSEA
+deconv_clr_df             | DataFrame      | (137, 22)     | 18            | ✅ CLR-transformed immune cells
+df_train_all              | DataFrame      | (137, 38113)  | 30            | ✅ FULL INTEGRATION
+keep_genes                | list           | 38030 items   | 13            | ✅ Gene list after variance filter
+transformers              | dict           | 7 objects     | 21-25         | ✅ Encoder/scaler objects
+pca                       | PCA object     | N/A           | 42            | ✅ PCA(n_components=0.95)
+pca_columns               | list/ndarray   | N/A           | 42            | ⚠️  Check if assigned
+trans_scaler              | StandardScaler | N/A           | 13            | ✅ For transcriptomics
+pathway_scaler            | StandardScaler | N/A           | 16            | ✅ For pathways
+clr_scaler                | StandardScaler | N/A           | 18            | ✅ For CLR-deconvolution
+
+================================================================================
+3. GENOMIC DATA (NEVER LOADED INTO A VARIABLE)
+================================================================================
+
+File path: Data/train_nivo/genomic.csv
+Shape: (137 rows, 34 columns)
+
+Column breakdown:
+  - Column 0: Patient_ID (string, matches training samples)
+  - Columns 1-11: Copy Number Alterations (CNA)
+    * Amplification_5q31.3, Amplification_5q35.3
+    * Deletion_3p21.1, Deletion_6p22.2, Deletion_6p21.32, Deletion_6p12.1,
+    * Deletion_9p21.3, Deletion_9q34.3, Deletion_10q23.31, Deletion_10q26.3,
+    * Deletion_14q32.33
+  - Columns 12-33: Gene-level mutations (22 genes)
+    * ARID1A, ATM, BAP1, COL9A3, KDM5C, MTOR, NF2, PBRM1, PCK1, PIK3CA,
+    * PTEN, S100B, SETD2, SMARCA4, TCEB1, TP53, TRMT2B, TSC1, USP32, VHL,
+    * WNT8A, ZNF800
+
+Value encodings (categorical):
+  - MUT: Mutation present
+  - WT: Wild-type (no mutation)
+  - NO_IF: No information / missing
+
+IMPORTANT: Genomic data WAS DISPLAYED in notebook cell 4 but NEVER assigned to
+a variable for downstream modeling. This is the gap Task 3 will address.
+
+================================================================================
+4. PREPROCESSING TRANSFORMATION OBJECTS
+================================================================================
+
+Created in Section 3.5 (Clinical Data Encoding):
+
+transformers dict keys:
+  1. 'ohe_Arm': OneHotEncoder for treatment arm (NIVOLUMAB, EVEROLIMUS)
+  2. 'le_Sex': LabelEncoder for sex (Male/Female → 0/1)
+  3. 'le_Sarc': LabelEncoder for sarcomatoid (Yes/No → 0/1)
+  4. 'le_Rhab': LabelEncoder for rhabdoid (Yes/No → 0/1)
+  5. 'le_Tumor_Sample_Primary_or_Metastasis': LabelEncoder (Primary/Metastasis → 0/1)
+  6. 'oe_MSKCC': OrdinalEncoder (POOR=0, INTERMEDIATE=1, FAVORABLE=2, NaN=-1)
+  7. 'scaler_Age': StandardScaler for age standardization
+
+Also created but not in dict:
+  - trans_scaler: StandardScaler (fitted on transcriptomics)
+  - pathway_scaler: StandardScaler (fitted on ssGSEA)
+  - clr_scaler: StandardScaler (fitted on CLR-deconvolution)
+
+================================================================================
+5. TRAINING SET STATISTICS
+================================================================================
+
+Training data samples: 137 patients (after train/test split)
+Response distribution (binary outcome):
+  - Non-responders (Response=0): 100 patients
+  - Responders (Response=1): 37 patients
+  - Imbalance ratio: ~2.7:1
+
+Data modalities integrated:
+  1. Clinical (10 columns after encoding): arm, sex, sarc, rhab, tumor site,
+     mskcc, prior therapies, age, response
+  2. Transcriptomic (38,030 columns): genes after variance filtering + scaling
+  3. Pathways (50 columns): ssGSEA hallmark scores after scaling
+  4. Immune deconvolution (22 columns): CLR-transformed + scaled
+
+Final feature matrix shape: (137, 38,110)
+  = 10 (clinical) + 38,030 (transcriptomic) + 50 (pathway) + 22 (immune)
+
+================================================================================
+6. CONSTANTS & CONFIGURATION
+================================================================================
+
+RANDOM_STATE = 42 (defined in cell 1, used throughout)
+
+cv = RepeatedStratifiedKFold(
+    n_splits=5,
+    n_repeats=3,
+    random_state=RANDOM_STATE
+)
+Total folds generated: 5 splits × 3 repeats = 15 iterations
+
+Variance filter threshold: var_cutoff = 0.05 (in cell 13)
+
+PCA configuration: n_components=0.95 (explained variance, not n_components count)
+  - This will retain 95% of variance
+  - Actual number of components determined by fit
+
+Imputation iterations: iterations=10 (miceforest in cell 27)
+
+================================================================================
+7. CRITICAL GAPS FOR TASK 3
+================================================================================
+
+What IS available in kernel:
+  ✅ X_train_all: Full feature matrix (all modalities integrated)
+  ✅ y_train: Binary response labels
+  ✅ All preprocessing transformers (scalers, encoders)
+  ✅ All feature matrices before integration
+  ✅ Constants (RANDOM_STATE, cv)
+
+What is NOT loaded:
+  ❌ Genomic data matrix (displayed but never assigned to variable)
+  ❌ PCA components (pca object exists but specific columns may need extraction)
+
+Action for Task 3:
+  Load Data/train_nivo/genomic.csv as genomic_df_train
+  Encode categorical values (MUT→1, WT→0, NO_IF→NaN)
+  Integrate into combined feature matrix
+  Create X_train_combined with all 4 modalities
+
+================================================================================
+8. CELL EXECUTION STATE
+================================================================================
+
+Notebook execution is complete through cell 53.
+All assignments have been made up to cell 53.
+
+Cells 52-53 are new additions from Task 1 and contain:
+  - Cell 52: Markdown header "## 6. Improved Model Development"
+  - Cell 53: Code for dependency verification (SHAP, XGBoost)
+
+NO variables are assigned in cells 52-53.
+
+Next available cell index for Task 3: 54
+Recommended approach: Add 2 new cells
+  1. Cell 54 (code): Load and encode genomic data
+  2. Cell 55 (code): Create combined feature matrix with genomic data
+
+================================================================================
+9. CROSS-CHECK: VARIABLE SHAPES CONSISTENCY
+================================================================================
+
+All samples must have 137 rows:
+  ✅ X_train_all: (137, 38110) ✓
+  ✅ y_train: (137,) ✓
+  ✅ train_clinical_imputed: (137, 10) ✓
+  ✅ train_trans_scaled: (137, 38030) ✓
+  ✅ train_pathway_scaled: (137, 50) ✓
+  ✅ deconv_clr_df: (137, 22) ✓
+  ✅ genomic_df (when loaded): (137, 34) ✓
+
+Total features when combined:
+  10 + 38,030 + 50 + 22 + 33 (genomic, excluding Patient_ID)
+  = 38,145 features (after genomic integration)
+
+================================================================================
+10. RECOMMENDATIONS FOR TASK 3
+================================================================================
+
+1. Load genomic CSV matching training set patient IDs
+2. Handle NO_IF values: either drop or treat as NaN for imputation
+3. Encode MUT/WT as binary (or ordinal)
+4. Match order to X_train_all by Patient_ID
+5. Concatenate: genomic + X_train_all
+6. Verify shape: (137, ~38145) depending on encoding strategy
+7. Re-fit feature selection if needed (to include genomic features)
+
+================================================================================
+END EVIDENCE FILE
+================================================================================

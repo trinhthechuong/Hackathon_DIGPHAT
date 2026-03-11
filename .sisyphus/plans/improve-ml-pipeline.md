@@ -252,7 +252,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 2. Read Notebook Structure and Map Existing Variables
+- [x] 2. Read Notebook Structure and Map Existing Variables
 
   **What to do**:
   - Read the ENTIRE `01_Model_Development.ipynb` notebook to understand:
@@ -574,7 +574,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 5. Best Model Selection and SHAP Feature Importance Visualization
+- [x] 5. Best Model Selection and SHAP Feature Importance Visualization
 
   **What to do**:
   Append the following NEW CELLS to the notebook (after cells from Task 4):
@@ -713,7 +713,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   - [x] 6. ROC Curve + Confusion Matrix + Model Comparison Bar Chart
 
-- [ ] 6. ROC Curve, Confusion Matrix, and Model Comparison Bar Chart
+- [x] 6. ROC Curve, Confusion Matrix, and Model Comparison Bar Chart
 
   **What to do**:
   Append the following NEW CELLS to the notebook (after cells from Task 5):
@@ -965,7 +965,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 8. Validate Notebook JSON Integrity and Execute
+- [x] 8. Validate Notebook JSON Integrity and Execute
 
   **What to do**:
   Validate the notebook is structurally valid and all new cells execute without runtime errors.
@@ -1072,7 +1072,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 9. Final Acceptance Criteria Verification and Commit
+- [x] 9. Final Acceptance Criteria Verification and Commit
 
   **What to do**:
   Run through ALL Definition of Done items and collect evidence. Then commit.
