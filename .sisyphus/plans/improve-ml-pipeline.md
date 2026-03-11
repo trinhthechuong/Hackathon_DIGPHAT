@@ -318,7 +318,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 3. Encode Genomic Data and Build Combined Feature Matrix
+- [x] 3. Encode Genomic Data and Build Combined Feature Matrix
 
   **What to do**:
   Append the following NEW CELLS to the notebook (after the section header from Task 1):
