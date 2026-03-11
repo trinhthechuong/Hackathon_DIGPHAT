@@ -415,7 +415,7 @@ Max Concurrent: 2 (Wave 1), 4 (Final)
 
 ---
 
-- [ ] 3. Execute Full Notebook End-to-End
+- [x] 3. Execute Full Notebook End-to-End
 
   **What to do**:
   - Run `jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=600 01_Model_Development.ipynb`
@@ -680,19 +680,19 @@ Max Concurrent: 2 (Wave 1), 4 (Final)
 
 > 4 review agents run in PARALLEL. ALL must APPROVE. Rejection → fix → re-run.
 
-- [ ] F1. **Plan Compliance Audit** — `deep`
+- [x] F1. **Plan Compliance Audit** — `deep`
   Read the plan end-to-end. For each "Must Have": verify implementation exists (read notebook cells, check artifacts). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in `.sisyphus/evidence/`. Compare deliverables against plan.
   Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
-- [ ] F2. **Code Quality Review** — `quick`
+- [x] F2. **Code Quality Review** — `quick`
   Read all modified cells in `01_Model_Development.ipynb`. Check for: hardcoded values that should be dynamic, incorrect comments/markdown, unused imports, print statements with wrong expected values, inconsistent variable names. Verify all markdown feature counts match actual code.
   Output: `Cells [N clean/N issues] | VERDICT`
 
-- [ ] F3. **Real Manual QA** — `quick`
+- [x] F3. **Real Manual QA** — `quick`
   Run the artifact verification commands from Task 4 QA scenarios. Verify SHAP beeswarm shows biological features using `look_at` tool. Verify `model_comparison.png` shows 3 classifiers. Check notebook cell outputs for errors.
   Output: `Scenarios [N/N pass] | VERDICT`
 
-- [ ] F4. **Scope Fidelity Check** — `deep`
+- [x] F4. **Scope Fidelity Check** — `deep`
   For each task: read "What to do", read actual notebook diff. Verify 1:1 — everything in spec was done, nothing beyond spec was done. Check that `pipeline_artifacts.joblib` (68MB) is untouched. Check that `02_Model_Deployment.ipynb` was NOT modified. Flag unaccounted changes.
   Output: `Tasks [N/N compliant] | Unaccounted [CLEAN/N files] | VERDICT`
 
