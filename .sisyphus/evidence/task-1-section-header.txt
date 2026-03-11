@@ -1,0 +1,50 @@
+TASK 1: Notebook Modification Evidence
+========================================
+
+CHANGES MADE TO: 01_Model_Development.ipynb
+============================================
+
+1. MARKDOWN CELL APPENDED (Cell 53):
+   Title: ## 6. Improved Model Development
+   
+   Content:
+   --------
+   We will now build an **improved pipeline** with:
+   - Integration of **genomic data** alongside transcriptomic features
+   - Multiple classifier types **(XGBoost, LightGBM, Logistic Regression)** for ensemble comparison
+   - **SHAP TreeExplainer** visualizations to understand feature contributions
+   - Goal: Achieve **ROC-AUC >= 0.60** and robust cross-validation performance
+   
+   The following cells will verify dependencies and set up the enhanced modeling pipeline.
+
+2. CODE CELL APPENDED (Cell 54):
+   Execution count: 191
+   
+   Content:
+   --------
+   # Verify SHAP and XGBoost installation & versions
+   import shap
+   import xgboost
+
+   print('OK')
+   print(f'SHAP: {shap.__version__}')
+   print(f'XGBoost: {xgboost.__version__}')
+
+VERIFICATION:
+==============
+✅ Cell type: markdown (section header with introductory text)
+✅ Cell type: code (dependency verification cell)
+✅ Execution count: 191 (incrementally assigned)
+✅ No existing cells modified (G1 guardrail maintained)
+✅ Cells appended at EOF (no disruption to existing structure)
+
+METHOD:
+=======
+Used nbformat Python API to safely modify notebook JSON:
+- Read existing notebook structure
+- Identified max execution count (190)
+- Created new cells with execution_count = 191
+- Appended to cells array
+- Saved modified notebook
+
+STATUS: APPENDED ✅
