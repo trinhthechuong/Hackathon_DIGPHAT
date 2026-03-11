@@ -530,7 +530,7 @@ Max Concurrent: 2 (Wave 1), 4 (Final)
 
 ---
 
-- [ ] 4. Verify Artifacts and Metrics
+- [x] 4. Verify Artifacts and Metrics
 
   **What to do**:
   - Load `artifacts/pipeline_artifacts_improved.joblib` and verify:

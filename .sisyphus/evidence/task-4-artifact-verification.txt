@@ -1,0 +1,42 @@
+=== QA SCENARIO 1: Artifact Integrity & Arm Leakage Check ===
+
+✓ Loaded improved artifact successfully
+
+Arm in feature_columns: NONE (GOOD)
+Arm in selected_features: NONE (GOOD)
+✓ No Arm columns found
+
+Feature columns count: 113 (expected ~113, range 105-120)
+✓ Feature count in acceptable range
+
+Selected features count: 20 (expected 20)
+Selected features: ['Sarc', 'HALLMARK_APICAL_JUNCTION', 'HALLMARK_COAGULATION', 'HALLMARK_COMPLEMENT', 'HALLMARK_HYPOXIA', 'HALLMARK_KRAS_SIGNALING_UP', 'HALLMARK_MITOTIC_SPINDLE', 'HALLMARK_MYOGENESIS', 'HALLMARK_P53_PATHWAY', 'T cells CD4 memory resting', 'T cells follicular helper', 'Dendritic cells resting', 'Dendritic cells activated', 'Mast cells activated', 'Eosinophils', 'Deletion_6p21.32', 'PBRM1', 'PTEN', 'SETD2', 'TRMT2B']
+✓ Selected features correct
+
+Class ratio: 5.4000 (expected ~5.4, range 4.0-7.0)
+✓ Class ratio in acceptable range
+
+Model name: Linear SVC
+✓ Model name is valid
+
+CV results count: 3 classifiers (expected 3)
+CV Results:
+  L1 LogReg:
+    ROC-AUC: 0.477 ± 0.128
+    F1: 0.229 ± 0.114
+  Linear SVC:
+    ROC-AUC: 0.509 ± 0.114
+    F1: 0.221 ± 0.088
+  XGBoost:
+    ROC-AUC: 0.483 ± 0.150
+    F1: 0.201 ± 0.083
+✓ All 3 classifiers present
+
+ROC-AUC Analysis:
+  Best model (Linear SVC): 0.5090
+  ⚠ WARNING: ROC-AUC 0.5090 < 0.65 target
+  → Model uses biological features only (honest metrics after Arm removal)
+
+============================================================
+ALL ARTIFACT CHECKS PASSED
+============================================================
