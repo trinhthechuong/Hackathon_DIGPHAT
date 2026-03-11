@@ -1,286 +1,117 @@
-# Hackathon_DIGPHAT
-PharmacogenomicDay
-# NOTEBOOK TEMPLATE
+# Hackathon: Multi-modal Immunotherapy Response Prediction in ccRCC
 
-You are a good Bioinformatic assistant. Me and you, we will teach students in a hackathon how to develop a machine learning model using pharmacogenomic data.
+Welcome to the **Pharmacogenomic Day Hackathon**. In this challenge, you will develop a machine learning model to predict how patients with clear cell Renal Cell Carcinoma (ccRCC) respond to Immune Checkpoint Blockade (ICB) therapy.
 
-Your tasks are help me generating two notebooks:
-
-1. The first one called **Model development**, where I present the datasets and theory to the students alongside with the code.
-2. The second one called **Model deployment**. After the student satisfy with the model performance, they will use this notebook to load the model and all the material that they developed on training dataset (retaining features, normalization scaler, etc) will be applied on the external test set to make a prediction.
-
----
-
-# Use Case
-
-**Multi-modal prediction of Immunotherapy response for ccRCC patient with follow-up post-Immune Checkpoint Blockade.**
-
-The datasets are provided in the folder.
+This repository provides two primary notebooks to guide you through the process:
+1. **01_Model_Development.ipynb**: Data exploration, preprocessing theory, and model optimization on the training set.
+2. **02_Model_Deployment.ipynb**: Loading saved artifacts and the trained pipeline to generate predictions on an external, unseen test set.
 
 ---
 
 # 1. Objective and Intended Use
 
-In this step, you should generate the information or explanation of each section.  
-For example, you can show the first 5 lines of RNA-seq dataset and give a short description about it.
-
 ## 1.1 Clinical Question
-
-- Can we predict RECIST response (CR/PR vs SD/PD) to immunotherapy?
-- Target population:
-  - Specify tumor type
-  - Treatment class
-  - Metastases + primary sites
+- **Primary Goal**: Can we predict the RECIST response (**Responder**: CR/PR vs. **Non-Responder**: SD/PD) using multi-modal pre-treatment data?
+- **Target Population**: ccRCC patients receiving immunotherapy (e.g., Nivolumab vs. Everolimus).
+- **Data Modalities**: Transcriptomic, Genomic, Proteomic (Deconvolution), and Clinical.
 
 ---
 
 # 2. Dataset Overview
 
-## 2.1 Modalities Included
+The dataset includes a rich variety of biological and clinical information:
 
-- RNA-seq (gene-level TPM)
-- Somatic mutation status (frequent genes)
-- Clinical/biological variables
-- Immune cell proportions (deconvolution):  
-  Using Cibersortx to estimation cell type proportion from bulk RNA-seq.  
-  I will provide directly a data, don’t need to generate a code to have this data.
-- ssGSEA pathway scores: ssGSEA from GSEAPy Hallmark pathways
+- **Transcriptomic (RNA-seq)**: Gene-level TPM (Transcripts Per Million) counts.
+- **Genomic (Somatic Mutations)**: Binary status or counts of mutations in frequent genes.
+- **Immune Deconvolution**: Proportions of 22 immune cell types estimated via CIBERSORTx from bulk RNA-seq.
+- **ssGSEA Pathway Scores**: Enrichment scores for Hallmark pathways (via GSEAPy).
+- **Clinical Data**: Arm (Nivolumab/Everolimus), Age, Sex, MSKCC Risk Group, and previous treatment history.
 
----
-
-## 2.2 Cohort Description
-
-- Number of patients
-- Responder proportion
-- Missing data summary:
-  - Using `missingno` library to show heatmap
-
----
-
-## 2.3 Data Harmonization
-
-- Sample ID intersection
-- Dataset freeze version (define once) → reproducibility (tool version...)
+### 2.1 Missing Data Visualiztion
+We use the `missingno` library to visualize missingness patterns, especially in clinical variables where specific values like "NO_IF" are treated as `NaN`.
 
 ---
 
 # 3. Outcome Definition
 
 ## 3.1 RECIST Mapping
-
-Binary outcome:
-
-- 1 = CR/PR
-- 0 = SD/PD
-
-Justification stated clearly.
-
----
+We define a binary outcome for classification:
+- **1 (Responder)**: Complete Response (CR) or Partial Response (PR).
+- **0 (Non-Responder)**: Stable Disease (SD) or Progressive Disease (PD).
 
 ## 3.2 Class Imbalance Assessment
-
-- Ratio responders / non-responders
-- Visualize by bar chart
+The cohort exhibits a natural imbalance (fewer responders). We handle this using **ADASYN** (Adaptive Synthetic Sampling) within our modeling pipeline.
 
 ---
 
 # 4. Preprocessing Strategy (Leakage-Controlled)
 
-Explicit statement: you should access `/Users/thechuongtrinh/Workspace/Hackathon_DIGPHAT/Data/preprocessing.py` and `/Users/thechuongtrinh/Workspace/Hackathon_DIGPHAT/Data/gene_query.py` to understand the preprocessing steps and follow them.
+Preprocessing is critical to avoid data leakage. All parameters (e.g., mean/variance for scaling, imputer kernels) are learned on the training set and applied to the test set.
 
-All preprocessing steps are done on the data.
+## 4.1 Transcriptomic Data
+- **Filtering**: Removal of low-expression genes based on variance.
+- **Standardization**: Scaling gene features to zero mean and unit variance.
+- **Dimensionality Reduction**: Principal Component Analysis (PCA) retaining **95% of explained variance**.
 
-## 4.1 RNA-seq
-- Gene name harmonization in from Ensembl ID to Gene Symbol
-- Normalization (CPM / VST / log-transform):
-  - Mention the libraries but don’t need to generate the code because the data is already normalized to TPM
-- Filtering low-expression genes
-- Optional variance filtering
-- Scaling
-
----
-
-## 4.2 Mutation Data
-
-- Binary encoding
-
----
+## 4.2 Genomic (Mutation) Data
+- **Feature Intersection**: Ensuring the same gene set is used across training and test datasets.
 
 ## 4.3 Immune Deconvolution
+- **Centered-Logratio (CLR) Transformation**: Since cell proportions are compositional data, we apply CLR before standardization to handle the unit-sum constraint.
 
-- Log-scaling because they are compositional data
-
----
-
-## 4.4 Pathway Scores
-
-- Scaling
-- Redundancy awareness
-
----
-
-## 4.5 Clinical Data
-
-- Encoding categorical variables
-- Standardization
+## 4.4 Pathway Scores & Clinical Data
+- **Pathway Scaling**: Standardization of ssGSEA scores.
+- **Clinical Encoding**:
+  - **One-Hot**: Treatment Arm.
+  - **Binary/Label**: Sex, Sarc, Rhab, Tumor Site.
+  - **Ordinal**: MSKCC Risk, Number of Prior Therapies.
+  - **Standardization**: Age.
+- **Imputation**: Multivariate Imputation by Chained Equations (**MICE**) via `miceforest`.
 
 ---
 
-## 4.6 Missing Value Handling
+# 5. Feature Engineering and Selection
 
-- Introduce basic technique for imputation
-- Apply multivariate imputation using MICE (`miceforest`)
-
----
-
-# 6. Feature Engineering and Dimensionality Reduction
-
-Given high-dimensional transcriptomics:
-
-## 6.1 Filtering-Based Reduction / Feature Selection
-
-- Variance filtering
-- Optional univariate filtering (responder information)
+Given the high-dimensional nature of omics data:
+1. **Variance Filtering**: Removes near-constant features.
+2. **SelectKBest**: Uses **Mutual Information** to select the most predictive features within a cross-validation loop.
+3. **Pipeline Integration**: Imbalance handling (ADASYN), Feature Selection (SelectKBest), and Modeling (Logistic Regression) are all wrapped in a single `Pipeline`.
 
 ---
 
-## 6.2 Embedded Selection
+# 6. Model Development and Evaluation
 
-- Regularization L1
-- Elastic Net
+## 6.1 Baseline Model
+We utilize **Penalized Logistic Regression (L2)** for its interpretability and robust performance on biological data.
 
----
+## 6.2 Evaluation Metrics
+Models are evaluated using 5-fold **Repeated Stratified Cross-Validation** with:
+- **ROC AUC**: Overall discriminative ability.
+- **PR AUC**: Performance on the minority (Responder) class.
+- **Balanced Accuracy**: Accounting for class imbalance.
+- **MCC / F1-Score**: Robustness of binary predictions.
 
-## 6.3 Dimensionality Reduction
-
-- PCA (transcriptome only)
-- Pre-specified number of components
-
----
-
-# 7. Model Development
-
-## 7.1 Baseline Model
-
-- Penalized logistic regression
-- Provides interpretability and calibration
+## 6.3 Learning Curves
+We plot training vs. validation performance to diagnose over-fitting and assess if more data would improve the model.
 
 ---
 
-## 7.2 Non-Linear Model
+# 7. Model Deployment and Submission
 
-- Decision-tree
-- Random Forest
-- SVM
-- XG-Boost
-- MLP
+## 7.1 Artifact Locking
+All preprocessing objects (scalers, encoders, PCA, imputer) and the final pipeline are saved as picklable objects. The **Deployment Notebook** reloads these to ensure the test data is handled identically to the training data.
 
----
-
-## 7.3 Cross-Validation
-
-- Stratified k-fold on training set
+## 7.2 automated Submission
+Instead of manual uploads, students submit results directly via an HTTP POST request to a Google Form "Invisible API":
+1. Generate probabilities and binary predictions.
+2. Format predictions as a comma-separated string.
+3. Run the submission cell with your **Team Name**.
 
 ---
 
-# 8. Model Evaluation
+## 🎉 Getting Started
+1. Open `01_Model_Development.ipynb` to explore the data.
+2. Build your pipeline and optimize your parameters.
+3. Use `02_Model_Deployment.ipynb` for final validation and submission.
 
-## 8.1 Metrics
-
-- PR AUC
-- Balanced accuracy
-- F1 score
-- MCC
-- Confusion matrix
-
-## 8.3 Learning Curve
-
-- Over-fitting / under-sampling
-
----
-
-# 9. Idea for Model Improvement
-
-- Data sampling (SMOTE)
-- Choice of ML model
-- Hyperparameter tuning (GridSearchCV, Optuna)
-
----
-
-# 9. Biological Interpretation (If Time Allows)
-
-## 9.1 Global Feature Importance
-
-- Top predictive variables
-- Stability across folds (qualitative)
-
----
-
-# Deployment Notebook
-
----
-
-# 11. External Validation Preparation (Blind Phase Ready)
-
-In this step, we will load all scalers, selected features, or other artifacts and apply them on external dataset to make a prediction.
-
----
-
-## 11.1 Model Locking
-
-Freeze:
-
-- Selected features
-- Scalers
-- Model coefficients
-
-Save model artifact.
-
----
-
-## 11.2 External Dataset Pipeline
-
-Predefined steps:
-
-- Align feature names
-- Apply stored preprocessing
-- Generate probabilities
-- Generate binary predictions
-
----
-
-## 11.3 Performance Reporting Template
-
-When labels become available:
-
-- ROC AUC
-- PR AUC
-- MCC
-- Calibration
-- Confusion matrix
-
----
-
-# Using Google Form as Invisible API Database
-
-Students won't ever see the form UI; they will simply push their results directly from their Python notebook code.
-
----
-
-## Step 1: Create the Database (Google Form)
-
-1. Create a new Google Form.
-2. Add two Short Answer questions:
-   - Team Name
-   - Predictions (where they paste the string of labels)
-3. Go to Responses tab and click the green Google Sheets icon to create spreadsheet.
-
----
-
-## Step 2: Get the Hidden Entry IDs
-
-1. In Form editor, click three dots (top right) → Get pre-filled link.
-2. Type "TEST_TEAM" in first box and "TEST_LABELS" in second.
-3. Click Get link and copy it.
-
-Example:
+**Good luck and happy hacking!**
