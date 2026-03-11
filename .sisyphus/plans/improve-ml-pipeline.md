@@ -854,7 +854,7 @@ Max Concurrent: 4 (Final verification wave only)
 
   **Commit**: NO (groups with Task 9)
 
-- [ ] 7. Save Improved Pipeline Artifacts
+- [x] 7. Save Improved Pipeline Artifacts
 
   **What to do**:
   Append the following NEW CELLS to the notebook (after cells from Task 6):
